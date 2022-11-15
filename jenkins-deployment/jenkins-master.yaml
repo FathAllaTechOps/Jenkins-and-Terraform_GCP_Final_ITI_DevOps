@@ -1,0 +1,88 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: jenkins
+  namespace: devops-tools
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: jenkins-server
+  template:
+    metadata:
+      labels:
+        app: jenkins-server
+    spec:
+      serviceAccountName: jenkins-admin
+      initContainers:
+      - name: install-kubectl
+        image: allanlei/kubectl
+        volumeMounts:
+        - name: kubectl
+          mountPath: /data
+        command: ["cp", "/usr/local/bin/kubectl", "/data/kubectl"]
+      - name: docker
+        image: docker:stable
+        volumeMounts:
+        - name: docker
+          mountPath: /data
+        command: ["cp", "/usr/local/bin/docker", "/data/docker"]
+      containers:
+        - name: jenkins
+          image:  jenkins/jenkins:lts
+          resources:
+            limits:
+              memory: "2Gi"
+              cpu: "1000m"
+            requests:
+              memory: "500Mi"
+              cpu: "500m"
+          ports:
+            - name: httpport
+              containerPort: 8080
+            - name: jnlpport
+              containerPort: 50000
+          livenessProbe:
+            httpGet:
+              path: "/login"
+              port: 8080
+            initialDelaySeconds: 90
+            periodSeconds: 10
+            timeoutSeconds: 5
+            failureThreshold: 5
+          volumeMounts:
+            - name: jenkins-data
+              mountPath: /var/jenkins_home 
+            - name: docker
+              mountPath: /usr/local/bin/docker
+              subPath: "docker"
+            - name: kubectl
+              mountPath: /usr/local/bin/kubectl
+              subPath: "kubectl"
+            - name: docker-sock
+              mountPath: /var/run/docker.sock        
+      volumes:
+        - name: jenkins-data
+          emptyDir: {}
+        - name: kubectl
+          emptyDir: {}
+        - name: docker
+          emptyDir: {}
+        - name: docker-sock
+          hostPath:
+            path: /var/run/docker.sock      
+ 
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: my-service
+  namespace: devops-tools
+spec:
+  selector:
+    app: jenkins-server
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 8080
+  type: LoadBalancer
