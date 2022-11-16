@@ -1,3 +1,4 @@
+![home_Page Image](./images/home.jpg)
 ## Table of contents
 * [General info](#general-info)
 * [Technologies](#technologies)
@@ -35,9 +36,4 @@ $ terrform apply
 * Install [ Gcloud , Kubectl , Activate ServieAccount to make VM Controll the Culster ] , it's all inside Script.sh
 * Connect To our Cluster using gcloud container clusters get-credentials NAME [--internal-ip] [--region=REGION     | --zone=ZONE, -z ZONE] 
 * kubectl apply -f Deployment
-
-
-  
-  
-![home_Page Image](./images/home.jpg)
 
