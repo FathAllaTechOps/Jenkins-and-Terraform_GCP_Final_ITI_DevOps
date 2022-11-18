@@ -25,10 +25,10 @@ Configure Github :
 
 
 ## Setup our infrastructure
-$ cd Terraform_GCP
-$ terraform init
-$ gcloud auth application-default login
-$ terrform apply
+* $ cd Terraform_GCP
+* $ terraform init
+* $ gcloud auth application-default login
+* $ terrform apply
 
   
 ## Deploy jenkins on our cluster
